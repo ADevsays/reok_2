@@ -1,0 +1,8 @@
+camera1:
+  url: '0'
+camera2:
+  url: '0'
+camera3:
+  url: '0'
+tesseract:
+  path: 'C:\Program Files\Tesseract-OCR\tesseract.exe'

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+{% load static %}
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SCANWASH</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+    </script>
+</head>
+
+<style>
+    .form-field label{
+        display: block;
+        font-weight: 500;
+    }
+    .form-field input{
+        border: 2px solid rgb(4, 84, 138);
+        color: black;
+        width: 100%;
+        padding: 6px 10px;
+        border-radius: 7px;
+        margin-top: 6px;
+    }
+</style>
+
+<body class="bg-gray-100">
+    <header class="bg-gradient-to-br from-blue-600 to-sky-500 text-white font-semibold max-h-32">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <a href="#" class="text-2xl font-bold"><img src="/media/car_images/logo3.png" alt="" width="130"></a>
+            <nav>
+                <button id="menu-btn" class="sm:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <ul id="menu" class="hidden sm:flex space-x-4">
+                    
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex items-start justify-center p-5 px-20 border ">
+        <aside class="text-center bg-white rounded-xl w-full p-12 flex flex-col items-center m-3 flex-[0.2]">
+            <div class="max-w-32 rounded-full">
+                <img class="size-32 object-contain rounded-full"
+                    src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+                    alt="profile picture">
+            </div>
+            <p class="text-3xl font-bold text-blue-800 my-2">{{user.first_name}}</p>
+            <p class="font-semibold">{{user.last_name}}</p>
+
+            <h3 class="text-xl font-bold">Empleado - {{user.id}}</h3>
+            <div>
+                <a href="/logout"
+                    class="p-2 block hover:bg-blue-400 hover:text-white border border-gray-300 mt-6  px-4 font-semibold rounded">Cerrar
+                    Sesión
+                </a>-
+            </div>
+        </aside>
+        <aside class="flex-1 h-full bg-white rounded-xl p-12 m-3 flex flex-col items-center relative overflow-hidden">
+            <div id="modal_config" class="z-999 p-12 absolute transition-all size-full bg-white top-[-800px] left-0 rounded-xl">
+                <form class="mt-4" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-field p-4">
+                            {{field.label_tag}}
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <div class="w-full flex justify-center mt-3">
+                        <button class="hover:opacity-90 p-2 px-4 font-medium rounded bg-gradient-to-br from-blue-600 to-sky-500 text-white">Actualizar Configuración</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="relative flex justify-center w-full">
+                <h2 class="w-full font-bold text-2xl text-center">Cámaras</h2>
+                <button id="config" class="py-1 absolute right-0 top-2 px-3 rounded text-white bg-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                      </svg>
+                </button>
+            </div>
+            <section class="flex gap-8 mt-8 font-semibold">
+                <div>
+                    <h2 class="mb-2 font-semibold" id="state">Empezar lavado</h2>
+                    <img class="camera max-w-[550px] border-8  border-blue-400 rounded-xl cursor-not-allowed" id="camera"
+                        src="https://t4.ftcdn.net/jpg/04/35/59/21/360_F_435592117_q7GtFAXFiKdxygr8qNOcNy79wzax89Qp.jpg"
+                        alt="Feed de Cámara 1">
+                </div>
+            </section>
+            <div class="mt-8 flex gap-8 items-center">
+                <button id="start"
+                    class="hover:opacity-90 bg-blue-500 text-white font-semibold rounded p-2 px-3">
+                    Iniciar
+                </button>
+                <button disabled id="next-btn" class="hover:opacity-90 border border-300 rounded font-semibold rounded p-2 px-3">Siguiente Acción</button>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const ACTIONS = [
+            {
+                "color": "blue",
+                "state":"Inicio de Aspirado", 
+            },
+            {
+                "color": "green",
+                "state":"Inicio de Lavado", 
+            },
+            {
+                "color": "yellow",
+                "state":"Lavado Terminado", 
+            }
+        ]
+
+        let stateIndex = 0;
+        let activeCamera = false;
+
+        // const cameras = document.querySelectorAll(".camera");
+        const camera = document.querySelector("#camera");
+        const btnStart = document.querySelector("#start");
+        const btnConfig = document.querySelector("#config");
+        const btnNext = document.querySelector("#next-btn");
+        
+        btnConfig.addEventListener("click", openConfig);
+        btnStart.addEventListener("click", startDetection);
+        btnNext.addEventListener("click", readNextAction)
+
+        const nextAction = (state, color)=>{
+            const stateValue = document.querySelector("#state");
+            stateValue.textContent = state;
+            console.log(color)
+            camera.className = `border-8 max-w-[550px] border-${color}-400 rounded-xl cursor-not-allowed`
+        };
+
+        const fetchCameras = async (url) => {
+            const connection = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken
+                }
+            });
+            console.log(connection)
+            return connection.ok;
+        }
+
+        const turnBtnClose =()=>{
+            btnStart.textContent = "Terminar Conexión";
+            btnStart.removeEventListener("click", startDetection);
+            btnStart.addEventListener("click", stopDetection);
+        }
+
+        const turnBtnConnect =()=>{
+            btnStart.textContent = "Encender Cámaras";
+            btnStart.removeEventListener("click", stopDetection);
+            btnStart.addEventListener("click", startDetection);
+        }
+
+        const displayImage = ()=>{
+                camera.src = `{% url 'video_feed' %}?camera=1`;
+                // camera.src = "https://asset.gecdesigns.com/img/wallpapers/blue-purple-beautiful-scenery-ultra-hd-wallpaper-4k-sr10012421-1706505497434-cover.webp"
+                camera.classList.remove("cursor-not-allowed");
+                camera.classList.add("cursor-pointer");
+                camera.addEventListener("click", (e)=>{
+                    const img = e.target;
+                    img.requestFullscreen();
+                });
+      
+        }
+
+        const hiddenImage =()=>{
+           
+                camera.src = "https://t4.ftcdn.net/jpg/04/35/59/21/360_F_435592117_q7GtFAXFiKdxygr8qNOcNy79wzax89Qp.jpg";
+                camera.classList.remove("cursor-pointer");
+                camera.classList.add("cursor-not-allowed");
+                camera.addEventListener("click", (e)=>{
+                    return null;
+                });
+        
+        }
+
+        function readNextAction(){
+            stateIndex = (stateIndex + 1) % ACTIONS.length;
+            const currentAction = ACTIONS[stateIndex];
+            if(!activeCamera) return;
+            nextAction(currentAction.state, currentAction.color);
+        }
+
+        async function startDetection() {
+            const connect = await fetchCameras("{% url 'start_detection' %}");
+            if(!connect){
+                alert("Error al conectar las cámaras");
+                return;
+            }
+            alert("Conexión iniciada!");
+            activeCamera = true;
+            btnNext.disabled = false;
+            displayImage();
+            turnBtnClose();
+        }
+
+        async function stopDetection(){
+            const stop = await fetchCameras("{% url 'stop_detection' %}");
+            if(!stop){
+                alert("Error al desconectar las cámaras");
+                return;
+            }
+            alert("Conexión terminada!");
+            activeCamera = false;
+            btnNext.disabled = false;
+            hiddenImage();
+            turnBtnConnect();
+        }
+
+        let configIsOpen = false;
+
+        function openConfig(){
+            configIsOpen = !configIsOpen;
+            const modalConfig = document.querySelector("#modal_config");
+            modalConfig.classList.toggle("top-0");
+            modalConfig.classList.toggle("top-[-800px]");
+            const closeSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+            </svg>`;
+            const openSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+            </svg>`;
+            btnConfig.innerHTML = configIsOpen ? closeSvg : openSvg;
+        }
+        let interval = null;
+
+async function checkPlateData(){
+    try {
+        const result = await fetch("{% url 'check_off_cam' %}");
+        const json = await result.json();
+        console.log(json)
+        if(!json.error){
+            
+            //clearInterval(interval)
+        } 
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+checkPlateData()
+
+interval = setInterval(checkPlateData, 5000)
+    </script>
+</body>
+
+</body>
+</html>
