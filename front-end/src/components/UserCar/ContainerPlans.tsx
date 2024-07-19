@@ -28,7 +28,6 @@ function ContainerPlans() {
             price: plan.price,
             duration: 0
         };
-        console.log(orderData)
         const result = await createOrder(orderData);
         if(result.error) toast.error("Ha habido un error");
         console.log(result)

@@ -37,7 +37,7 @@ urlpatterns = [
     path('api/update_timer/', views_rest_api.update_timer, name="update_timer"),
     path('api/set_order/', views_rest_api.create_queue, name="set_order"),
     path('api/get_order/', views_rest_api.dequeue_order, name="get_order"),
-    path('api/get_all_orders/', views_rest_api.get_all_orders_in_queue, name="get_orders"),
+    path('api/get_all_orders/', views_rest_api.get_all_orders_in_queue, name="all_orders"),
 ]
 
 

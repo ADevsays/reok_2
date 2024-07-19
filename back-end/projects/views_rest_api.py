@@ -291,8 +291,6 @@ def get_all_orders_in_queue(request):
                     'duration': order.duration,
                 } for order in orders]
                 return JsonResponse({'orders': orders_list})
-            else:
-                return JsonResponse({'error': 'Queue not found'}, status=404)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
