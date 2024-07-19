@@ -5,9 +5,14 @@ import CarPill from "./CarPill";
 import getRutuser from "../../services/Plate/getRUTuser";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import useOrders from "../../store/cars";
+import getOrders from "../../services/User/getOrders";
+import OrderStats from "../Stats/OrdersStats";
 
 function BodyDashboard() {
     const {rut} = usePlateRUT();
+    const {setOrders, orders} = useOrders();
+
     const [currentCar, setCurrentCar] = useState({
         plate_number:"",
         rut:"",
@@ -24,9 +29,12 @@ function BodyDashboard() {
     
     useEffect(()=>{
         const getUser = async ()=>{
-            const result = await getRutuser(rut as string);
-            if(result.error) return toast.error("Ha habido un error")
-            setCurrentCar(result.success);
+            const currentCar = await getRutuser(rut as string);
+            if(currentCar.error) return toast.error("Ha habido un error")
+            setCurrentCar(currentCar.success);
+            const orders = await getOrders();
+            if(orders.error) return toast.error("Hubo un error");
+            setOrders(orders.success.orders)         
         };
         getUser();
     }, [])
@@ -35,7 +43,7 @@ function BodyDashboard() {
             <div className="grid grid-cols-3 gap-8 mb-4 text-black">
                 <div className="flex  p-8 gap-3 flex-col items-start justify-center h-40 rounded bg-white">
                     <p className="text-3xl text-black font-medium">
-                        17
+                        {orders ? orders.length : 0}
                     </p>
                     <span className="block text-sm text-gray-800">Vehículos totales día</span>
                     <a href="" className="text-red-500 font-semibold">Ver</a>
@@ -58,9 +66,9 @@ function BodyDashboard() {
             <div className="col-span-2 flex flex-col items-start justify-center h-80 my-6 rounded bg-white w-full">
                 <div className="px-8 mb-4">
                     <h3 className="font-normal text-xl">Vehículos ingresados hoy</h3>
-                    <p className="text-2xl font-bold ">17 <span className="font-semibold text-green-500 text-base">+$5%</span></p>
+                    <p className="text-2xl font-bold ">{orders ? orders.length : 0} <span className="font-semibold text-green-500 text-base">+$5%</span></p>
                 </div>
-                <BalanceStats/>
+                <OrderStats orders={orders}/>
             </div>
             <div className="flex items-center justify-between h-56 my-6 rounded bg-white text-black overflow-hidden">
                 {

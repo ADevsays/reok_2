@@ -289,6 +289,7 @@ def get_all_orders_in_queue(request):
                     'user': order.user.username,
                     'price': str(order.price),
                     'duration': order.duration,
+                    'timestamp': order.created_at
                 } for order in orders]
                 return JsonResponse({'orders': orders_list})
         except Exception as e:

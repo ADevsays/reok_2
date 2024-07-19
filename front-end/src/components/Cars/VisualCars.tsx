@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import CarPill from "../Employee/CarPill";
 import getOrders from "../../services/User/getOrders";
+import useOrders from "../../store/cars";
 
 function VisualCars() {
-    const [orders, setOrders] = useState([] as any);
+    const {orders, setOrders} = useOrders();
 
     useEffect(() => {
         const getQueque = async ()=>{
