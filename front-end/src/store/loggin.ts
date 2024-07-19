@@ -1,14 +1,25 @@
-import { create } from "zustand";
-import { User } from "../interfaces/User/userInterfaces";
+import {create} from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { User } from '../interfaces/User/userInterfaces';
 
-interface UserState{
-    user: User | null,
-    setUser: (newUser: any)=> void
-}
+interface UserState {
+  user: User | null;
+  setUser: (newUser: User) => void;
+  clearUser: ()=> void
+};
 
-const useUser = create<UserState>((set)=> ({
-    user: null,
-    setUser: ()=> set((newUser:any)=> ({user:newUser}))
-}));
+const useUser = create(
+  persist<UserState>(
+    (set) => ({
+      user: null,
+      setUser: (newUser: User) => set({user:newUser}),
+      clearUser: ()=> set({user:null})
+    }),
+    {
+      name: 'user-state', 
+      storage: createJSONStorage(()=> localStorage), 
+    }
+  )
+);
 
 export default useUser;

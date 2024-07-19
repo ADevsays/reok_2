@@ -27,6 +27,10 @@ function FormRegister() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const regex = /^\d{8}-\d$/;
+        if(!regex.test(userData.rut)){
+            return toast.error("Ingresa un RUT válido");
+        }
         const result = await register(userData);
         if(result.error) return toast.error(result.error);
         toast.success("¡Usuario creado correctamente!");
@@ -65,7 +69,7 @@ function FormRegister() {
             <div className="relative z-0 w-full mb-5 group">
                 <input
                     onChange={handleChange}
-                    type="number" name="rut" id="floating_rut" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white  dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                    type="text" name="rut" id="floating_rut" className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white  dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
                 <label htmlFor="floating_rut" className="peer-focus:font-medium absolute text-sm text-gray-200 dark:text-gray-200 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Rut</label>
             </div>
             <div className="relative z-0 w-full mb-5 group">

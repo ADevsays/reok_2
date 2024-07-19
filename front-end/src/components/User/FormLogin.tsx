@@ -28,7 +28,8 @@ function FormLogin() {
         toast.success(`¡Bienvenido ${result.success.username}!`);
         setUser(result.success);
         setTimeout(()=>{
-            const pathNavigate = result.success.is_employee ? "/employee" : "/plan"
+            const pathNavigate = result.success.is_employee ? "/employee" : "/plan";
+            console.log(pathNavigate)
             navigate(pathNavigate);
         }, 3000)
     };

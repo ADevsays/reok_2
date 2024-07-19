@@ -13,7 +13,7 @@ export interface Register{
     password2:string,
     first_name:string, 
     last_name:string, 
-    rut:number | string
+    rut:string
 }
 
 export interface Login{

@@ -30,6 +30,10 @@ urlpatterns = [
     path('api/register/', views_rest_api.register, name='register'),
     path('api/login/', views_rest_api.login_user, name='login_user'),
     path('api/logout/', views_rest_api.logout_user, name='logout_user'),
+    path('api/plate_lector/', views_rest_api.plate_detector, name="plate_detector"),
+    path('api/push_rut/', views_rest_api.push_plate_user, name="push_rut"),
+    path('api/get_user/<str:rut>/', views_rest_api.get_user_by_rut, name="get_user_by_rut"),
+    path('api/update_status/', views_rest_api.update_status, name="update_status"),
 ]
 
 

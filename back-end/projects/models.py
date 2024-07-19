@@ -14,9 +14,16 @@ class CameraConfig(models.Model):
 class CarPlates(models.Model):
     plate_number = models.CharField(max_length=10, unique=True)
     date_time = models.DateTimeField(auto_now_add=True)
-    image_path = models.CharField(max_length=100)
-    car_year = models.IntegerField()
-    brand = models.CharField(max_length=55)
-    model = models.CharField(max_length=50)
-    car_type = models.CharField(max_length=50)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+class WashStatus(models.Model):
+    STATUS_CHOICES = [
+        ('ENTERED', 'Entered'),
+        ('WASHING', 'Washing'),
+        ('FINISHED', 'Finished'),
+        ('EXIT', 'Exit'),
+    ]
+    
+    car_plate = models.ForeignKey(CarPlates, on_delete=models.CASCADE, related_name='wash_status')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ENTERED')
+    updated_at = models.DateTimeField(auto_now=True)
