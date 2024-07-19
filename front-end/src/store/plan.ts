@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface Plan{
     id:number, 
-    type:string
+    price:number
 };
 
 interface PlanState {

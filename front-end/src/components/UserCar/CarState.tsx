@@ -7,10 +7,11 @@ import WaveAnimate from "./WaveAnimate";
 import getRutuser from "../../services/Plate/getRUTuser";
 import { toast } from "sonner";
 import { DetailPlate } from "../../interfaces/User/plateInterfaces";
+import { Link } from "react-router-dom";
 
 function CarState() {
     const { user } = useUser();
-    const [details, setDetails] = useState<DetailPlate>({ plate_number: "", status: "" });
+    const [details, setDetails] = useState<DetailPlate>({ plate_number: "", status: "", timer:0});
 
     useEffect(() => {
         const getPlate = async () => {
@@ -58,12 +59,12 @@ function CarState() {
                     <small className="font-medium text-base">{details.plate_number}</small>
                 </div>
                 {
-                    getState()[1] !== 1  ?
+                    getState()[1] === 1  ?
                     <p className="text-center">Agradecemos por su espera</p> :
-                    <TimerWash />
+                    <TimerWash timer={details.timer}/>
                 }
                 <div className="w-full relative z-[999] flex justify-center mt-12">
-                    <button className="font-semibold text-white p-2 px-12 text-sm rounded-lg bg-blue-500 hover:bg-blue-400">Ver Informe</button>
+                    <Link to="/plan" className="font-semibold text-white p-2 px-12 text-sm rounded-lg bg-blue-500 hover:bg-blue-400">Cambiar plan</Link>
                 </div>
             </div>
             <WaveAnimate />

@@ -11,7 +11,7 @@ import pytesseract #type:ignore
 import re
 from .scanner import validate_plate
 from django.shortcuts import get_object_or_404 #type: ignore
-from .models import CustomUser, CarPlates, WashStatus
+from .models import CustomUser, CarPlates, WashStatus, Timer, Order, Queue
 
 frame_queue = []
 is_detecting = False
@@ -125,7 +125,7 @@ def push_plate_user(request):
         defaults={'plate_number': plate_number}
     )
 
-    if not created:
+    if not created: 
         car_plate.plate_number = plate_number
         car_plate.save()
         wash_status, created = WashStatus.objects.get_or_create(
@@ -156,6 +156,7 @@ def get_user_by_rut(request, rut):
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     user = get_object_or_404(CustomUser, rut=rut)
     car_plate = CarPlates.objects.filter(user=user).first()
+    timer = Timer.objects.filter(user=user).order_by('-id').first()  # Obtén el más reciente
 
     if not car_plate:
         return JsonResponse({"status": "NO_CLIENT"})
@@ -166,7 +167,10 @@ def get_user_by_rut(request, rut):
     
     response_data = {
         'plate_number': car_plate.plate_number,
-        'status': wash_status.status
+        'status': wash_status.status,
+        'username': user.username,
+        'rut': user.rut,
+        'timer': timer.time if timer else 0
     }
 
     return JsonResponse(response_data)
@@ -197,3 +201,98 @@ def update_status(request):
         wash_status.save()
 
     return JsonResponse({"success": "Status cambiado"})
+
+@csrf_exempt
+
+def update_timer(request):
+    try:
+        data = json.loads(request.body)
+        rut = data.get('rut')
+        time = data.get("time")
+    except (KeyError, json.JSONDecodeError):
+        return JsonResponse({'error': 'Faltan parámetros o error de JSON'}, status=400)
+    
+    user = get_object_or_404(CustomUser, rut=rut)
+    Timer.objects.filter(user=user).delete()
+
+    Timer.objects.create(
+        user=user,
+        time=time
+    )
+    
+    return JsonResponse({"success": "Timer cambiado"})
+
+
+@csrf_exempt
+def create_queue(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_rut = data.get('rut')
+            price = data.get('price')
+            duration = data.get('duration')
+
+            user = CustomUser.objects.get(rut=user_rut)
+
+            # Crear la nueva orden
+            order = Order.objects.create(
+                user=user,
+                price=price,
+                duration=duration
+            )
+
+            # Obtener o crear la cola
+            queue, created = Queue.objects.get_or_create()
+
+            # Encolar la orden
+            queue.enqueue(order)
+            return JsonResponse({'success': 'Order created and added to queue'})
+        
+        except (KeyError, json.JSONDecodeError):
+            return JsonResponse({'error': 'Missing parameters or JSON decode error'}, status=400)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def dequeue_order(request):
+    if request.method == 'GET':
+        try:
+            queue = Queue.objects.first()  # Suponiendo que solo hay una cola
+            if queue:
+                order = queue.dequeue()
+                if order:
+                    return JsonResponse({
+                        'order_id': order.id,
+                        'user': order.user.username,
+                        'price': str(order.price),
+                        'duration': order.duration
+                    })
+                else:
+                    return JsonResponse({'message': 'No orders in queue'}, status=404)
+            else:
+                return JsonResponse({'error': 'Queue not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+
+def get_all_orders_in_queue(request):
+    if request.method == 'GET':
+        try:
+            queue = Queue.objects.first()  # Suponiendo que solo hay una cola
+            if queue:
+                orders = queue.orders.all()
+                orders_list = [{
+                    'order_id': order.id,
+                    'user': order.user.username,
+                    'price': str(order.price),
+                    'duration': order.duration,
+                } for order in orders]
+                return JsonResponse({'orders': orders_list})
+            else:
+                return JsonResponse({'error': 'Queue not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)

@@ -3,6 +3,7 @@ import { baseURL } from "../url";
 
 export default async function getRutuser(rut:string){
     try {
+        if(!rut) return {success:"No user"};
         const response = await fetch(`${baseURL}/api/get_user/${rut}/`);
 
         if(!response.ok){

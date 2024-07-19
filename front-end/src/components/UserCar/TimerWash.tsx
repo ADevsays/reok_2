@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
 
-function TimerWash() {
-    const [timeLeft, setTimeLeft] = useState(300); 
+function TimerWash({timer}:{timer:number}) {
+    const [timeLeft, setTimeLeft] = useState(timer); 
+
 
     useEffect(() => {
-        if (timeLeft === 0) return;
+        setTimeLeft(timer);
+
         const timerId = setInterval(() => {
-            setTimeLeft(prevTime => prevTime - 1);
+            setTimeLeft(prevTime => {
+                if (prevTime <= 0) {
+                    clearInterval(timerId); 
+                    return 0;
+                }
+                return prevTime - 1;
+            });
         }, 1000);
 
-        return () => clearInterval(timerId); 
-    }, [timeLeft]);
+        return () => clearInterval(timerId);
+    }, [timer]);
 
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
@@ -18,7 +26,7 @@ function TimerWash() {
     return (
         <div>
             <h4 className='text-center font-semibold text-sm'>
-                Tiempo aproximado para la siguiente fase: <span className='text-blue-500'> {minutes}:{seconds < 10 ? `0${seconds}` : seconds}</span> 
+                Tiempo aproximado de lavado <span className='text-blue-500'> {minutes}:{seconds < 10 ? `0${seconds}` : seconds}</span> 
             </h4>
         </div>
     );

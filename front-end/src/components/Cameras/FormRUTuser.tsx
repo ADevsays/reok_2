@@ -18,7 +18,7 @@ function FormRUTuser({handler}:{handler: (rut:string)=>void}) {
             <input
                 onInput={(e:ChangeEvent<HTMLInputElement>)=>setRUT(e.target?.value)} 
                 className="mt-3 w-full p-2 rounded-lg" type="text" placeholder="Ingresa el RUT del propietario del vehículo" />
-            <button className="mt-3 font-medium">Enviar</button>
+            <button className="mt-3 font-semibold">Enviar</button>
         </form>
     );
 }

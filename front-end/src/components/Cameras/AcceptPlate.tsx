@@ -30,7 +30,7 @@ function AcceptPlate({ plate, rut, username, confirmPlate, handleAgain, handleCo
                     </button>
                 </div>
                 :
-                <p className="text-center mt-3 font-medium">{username}</p>
+                <p className="text-center mt-3 font-medium text-blue-500">{username}</p>
             }
         </div>
     );

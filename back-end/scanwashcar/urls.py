@@ -34,6 +34,10 @@ urlpatterns = [
     path('api/push_rut/', views_rest_api.push_plate_user, name="push_rut"),
     path('api/get_user/<str:rut>/', views_rest_api.get_user_by_rut, name="get_user_by_rut"),
     path('api/update_status/', views_rest_api.update_status, name="update_status"),
+    path('api/update_timer/', views_rest_api.update_timer, name="update_timer"),
+    path('api/set_order/', views_rest_api.create_queue, name="set_order"),
+    path('api/get_order/', views_rest_api.dequeue_order, name="get_order"),
+    path('api/get_all_orders/', views_rest_api.get_all_orders_in_queue, name="get_orders"),
 ]
 
 

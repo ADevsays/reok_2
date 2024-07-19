@@ -1,7 +1,35 @@
+import { useEffect, useState } from "react";
+import usePlateRUT from "../../store/plateRut";
 import BalanceStats from "../Stats/BalanceStats";
 import CarPill from "./CarPill";
+import getRutuser from "../../services/Plate/getRUTuser";
+import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 function BodyDashboard() {
+    const {rut} = usePlateRUT();
+    const [currentCar, setCurrentCar] = useState({
+        plate_number:"",
+        rut:"",
+        username:"",
+        status:""
+    });
+
+    const states:any = {
+        "ENTERED": "Iniciando lavado",
+        "WASHING": "Lavado",
+        "FINISHED": "De Salida",
+        "EXIT": "Esperando siguiente auto"
+    }
+    
+    useEffect(()=>{
+        const getUser = async ()=>{
+            const result = await getRutuser(rut as string);
+            if(result.error) return toast.error("Ha habido un error")
+            setCurrentCar(result.success);
+        };
+        getUser();
+    }, [])
     return (
         <section className="p-6 sm:ml-64">
             <div className="grid grid-cols-3 gap-8 mb-4 text-black">
@@ -21,10 +49,10 @@ function BodyDashboard() {
                 </div>
                 <div className="flex  p-8 gap-3 flex-col items-start justify-center h-40 rounded bg-white">
                     <p className="text-3xl text-black font-medium">
-                        Lavado
+                        {states[currentCar.status] ?? "No hay auto"}
                     </p>
                     <span className="block text-sm text-gray-800">Estado Vehículo Actual</span>
-                    <a href="" className="text-red-500 font-semibold">Ver</a>
+                    <Link to="/employee/camaras_view" className="text-red-500 font-semibold">Ver</Link>
                 </div>
             </div>
             <div className="col-span-2 flex flex-col items-start justify-center h-80 my-6 rounded bg-white w-full">
@@ -35,12 +63,16 @@ function BodyDashboard() {
                 <BalanceStats/>
             </div>
             <div className="flex items-center justify-between h-56 my-6 rounded bg-white text-black overflow-hidden">
+                {
+                currentCar &&
                 <div className="p-8 space-y-3">
                     <h3 className="text-3xl font-bold">Vehículo actual</h3>
-                    <p className="text-gray-800">Matrícula: <span className="text-black font-bold">123</span></p>
-                    <p className="text-gray-800">Propietario: <span className="text-black font-bold">Juan</span></p>
-                    <p className="text-gray-800">RUT Propietario: <span className="text-black font-bold">12223</span></p>
+                    <p className="text-gray-800">Matrícula: <span className="text-black font-bold">{currentCar.plate_number}</span></p>
+                    <p className="text-gray-800">Propietario: <span className="text-black font-bold">{currentCar.username}</span></p>
+                    <p className="text-gray-800">RUT Propietario: <span className="text-black font-bold">{currentCar.rut}</span></p>
                 </div>
+
+                }
                 <div className="max-w-[420px] opacity-90">
                     <img className="size-full" src="/media/washing gif.gif" alt="Gif washing" />
                 </div>

@@ -3,22 +3,35 @@ import CarIcons from "./CarIcons";
 import Plan from "./Plan";
 import usePlan from "../../store/plan";
 import { useNavigate } from "react-router-dom";
-
+import useUser from "../../store/loggin";
+import createOrder from "../../services/User/createOrder";
+import { toast } from "sonner";
 
 function ContainerPlans() {
     const [updateIndex, setUpdateIndex] = useState(0);
     const {setCurrentPlan} = usePlan();
+    const {user} = useUser();
     const navigate = useNavigate();
 
     const washTypes = [
-        { id: 1, type: "basic"},
-        { id: 2, type: "detail"},
-        { id: 3, type:"express"}
+        { id: 1, price: 12},
+        { id: 2, price: 22},
+        { id: 3, price: 9.99}
     ];
 
-    const nextPage = ()=>{
+    const nextPage = async ()=>{
         const plan = washTypes.find(type=> type.id === updateIndex);
         if(!plan) return;
+
+        const orderData = {
+            rut: user?.rut as string,
+            price: plan.price,
+            duration: 0
+        };
+        console.log(orderData)
+        const result = await createOrder(orderData);
+        if(result.error) toast.error("Ha habido un error");
+        console.log(result)
         setCurrentPlan(plan);
         console.log(plan);
         navigate("/");

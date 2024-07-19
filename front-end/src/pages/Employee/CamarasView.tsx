@@ -7,22 +7,30 @@ import FormRUTuser from "../../components/Cameras/FormRUTuser";
 import pushRutUser from "../../services/Plate/pushRutUser";
 import { toast } from "sonner";
 import changeStatus from "../../services/Plate/changeStatus";
+import Timer from "../../components/Cameras/Timer";
+import udpateTimer from "../../services/Camera/updateTimer";
 
 function CamarsView() {
     const [cameras, setCameras] = useState([] as MediaDeviceInfo[]);
-    const [currentCameraId, setCameraId] = useState(-1);
     const [userName, setUserName] = useState("");
     const [haveRut, setHaveRut] = useState(false);
     const [init, setInit] = useState(false);
     const [confirmPlate, setConfirmPlate] = useState(false);
+    const [timerRunning, setTimerRunning] = useState(false);
     const [btnState, setbtnState] = useState(0);
-    const [finish, setFinish] = useState(false);
 
     const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
     const currentVideoState = useRef<HTMLVideoElement | null>(null);
     const streamsRef = useRef<(MediaStream | null)[]>([]);
 
-    const { setPlate, setRUT, plate, rut } = usePlateRUT();
+    const { setPlate,
+            setRUT, 
+            setCurrentCameraId,
+            setTimer,
+            plate, 
+            rut, 
+            currentCameraId,
+            timer} = usePlateRUT();
 
     const camerasDetails = [
         { type: "Lector de la patente", endpoint: () => { } },
@@ -30,8 +38,7 @@ function CamarsView() {
         { type: "Salida del auto", endpoint: () => { } },
     ];
 
-    const states = ["Entrar a usuario", "Siguiente paso", "Siguiente paso", "Finalizar lavado"];
-
+    const states = ["Ingresar nuevo auto", "Siguiente paso", "Siguiente paso", "Finalizar lavado"];
 
     useEffect(() => {
         const getCameras = async () => {
@@ -68,7 +75,21 @@ function CamarsView() {
             });
             streamsRef.current = streams;
         };
-        startCameras();
+
+        const Inicialize = async()=>{
+            await startCameras();
+
+            const currentStream = streamsRef.current[currentCameraId];
+            const videoEl = currentVideoState.current;
+            if (!videoEl) return;
+            videoEl!.srcObject = currentStream;
+            videoEl!.play();    
+            setbtnState(currentCameraId + 1)
+            console.log(currentCameraId)
+            setInit(currentCameraId === 0 && (!confirmPlate))
+        }
+
+        Inicialize();
 
     }, [cameras]);
 
@@ -89,14 +110,38 @@ function CamarsView() {
             });
             if(result.error) return toast.error("Ha habido un error");
             console.log(result)
+        };
+
+        const fetchTimer = async ()=>{
+            console.log(timer)
+            const result = await udpateTimer({
+                rut: rut as string, 
+                time:timer
+            });
+            if(result.error) return toast.error("Ha habido un error");
+            console.log(result)
+        };
+
+        if(currentCameraId === 1){
+            fetchStatus("WASHING");
+            fetchTimer();
         }
-
-
-        if(currentCameraId === 1)fetchStatus("WASHING");
-        if(currentCameraId === 2)fetchStatus("FINISHED");
+        if(currentCameraId === 2){
+            fetchStatus("FINISHED");
+            fetchTimer();
+        }
         if(currentCameraId === 3){
             fetchStatus("EXIT");
-            setFinish(true);
+            setRUT("");
+            setPlate("");
+            setCurrentCameraId(-1);
+            setTimer(0);
+            setUserName("");
+            setHaveRut(false);
+            setConfirmPlate(false);
+            setbtnState(0)
+            setTimerRunning(false);
+            fetchTimer();
         }
     
 
@@ -121,7 +166,9 @@ function CamarsView() {
 
     const handleChangeState = () => {
         if(init) return;
-        setCameraId((prevId) => prevId >= 3 ? prevId : prevId + 1);
+        if (currentCameraId < 3) {
+            setCurrentCameraId(currentCameraId + 1);
+        }
         setbtnState((btn) => (btn + 1) % states.length);
 
     };
@@ -157,6 +204,7 @@ function CamarsView() {
         const plateResult = await pushRutUser(plateData);
         if (plateResult.error) return toast.error("Ha habido un error con el RUT");
         setUserName(plateResult.success.username);
+        setTimerRunning(true);
     }
 
     return (
@@ -190,7 +238,7 @@ function CamarsView() {
                     <video className="rounded-lg" ref={currentVideoState} />
                 </div>
 
-                {(haveRut && plate) ?
+                {((haveRut || rut) && plate) ?
                     <AcceptPlate
                         username={userName}
                         confirmPlate={confirmPlate}
@@ -205,6 +253,7 @@ function CamarsView() {
                     (init && !plate) &&
                     <FormRUTuser handler={handleSubmitRUT} />
                 }
+                <Timer timerRunning={timerRunning}/>
             </section>
         </Dashboard>
     );
